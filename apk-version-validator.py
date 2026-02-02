@@ -18,8 +18,36 @@ def get_actual_version(package_id):
         return None
     return None
 
+def ensure_configs_dir(config_dir="configs"):
+    """Ensure configs directory exists, generate example if empty"""
+    if not os.path.exists(config_dir):
+        os.makedirs(config_dir)
+        print(f"📁 Directory created: {config_dir}")
+
+    json_files = [f for f in os.listdir(config_dir) if f.endswith('.json')]
+    if not json_files:
+        example_path = os.path.join(config_dir, "example_config.json")
+        example_data = {
+            "project_name": "Example Project",
+            "apps_to_check": [
+                {
+                    "name": "YouTube",
+                    "package_name": "com.google.android.youtube",
+                    "version": "19.01.33"
+                },
+                {
+                    "name": "Line",
+                    "package_name": "jp.naver.line.android",
+                    "version": "14.1.1"
+                }
+            ]
+        }
+        with open(example_path, 'w', encoding='utf-8') as f:
+            json.dump(example_data, f, indent=4)
+        print(f"💡 Generated example config: {example_path}")
+
 def generate_html_report(project_name, results, report_folder="reports"):
-    """Generate an HTML report and save to the specified folder"""
+    """Generate a stylized HTML report"""
     if not os.path.exists(report_folder):
         os.makedirs(report_folder)
         print(f"📁 Created report folder: {report_folder}")
@@ -44,45 +72,43 @@ def generate_html_report(project_name, results, report_folder="reports"):
 
     html_content = f"""
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
     <head>
         <meta charset="UTF-8">
         <title>APK Validation Report - {project_name}</title>
         <style>
-            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; background: #f4f7f6; color: #333; }}
+            body {{ font-family: 'Segoe UI', sans-serif; margin: 40px; background: #f4f7f6; color: #333; }}
             .container {{ max-width: 1000px; margin: auto; }}
             table {{ width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }}
             th, td {{ padding: 15px; text-align: left; border-bottom: 1px solid #eee; }}
             th {{ background-color: #007bff; color: white; text-transform: uppercase; font-size: 14px; }}
             tr:hover {{ background-color: #f9f9f9; }}
-            .header {{ background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 5px solid #007bff; }}
-            .footer {{ margin-top: 20px; font-size: 12px; color: #777; text-align: center; }}
+            .header {{ background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #007bff; }}
             h1 {{ margin-top: 0; color: #007bff; }}
-            code {{ background: #f0f0f0; padding: 2px 5px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; }}
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
                 <h1>📱 APK Version Validation Report</h1>
-                <p><strong>專案名稱:</strong> {project_name}</p>
-                <p><strong>產出時間:</strong> {timestamp}</p>
+                <p><strong>Project:</strong> {project_name}</p>
+                <p><strong>Generated At:</strong> {timestamp}</p>
             </div>
             <table>
                 <thead>
                     <tr>
-                        <th>應用名稱 (App Name)</th>
-                        <th>套件名稱 (Package Name)</th>
-                        <th>預期版本</th>
-                        <th>實際版本</th>
-                        <th>結果狀態</th>
+                        <th>App Name</th>
+                        <th>Package Name</th>
+                        <th>Expected</th>
+                        <th>Actual</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     {rows}
                 </tbody>
             </table>
-            <div class="footer">
+            <div style="margin-top:20px; text-align:center; font-size:12px; color:#999;">
                 Powered by APK Version Validator v{__version__}
             </div>
         </div>
@@ -94,34 +120,33 @@ def generate_html_report(project_name, results, report_folder="reports"):
     print(f"\n📑 HTML report generated: {os.path.abspath(output_path)}")
 
 def select_config_file(config_dir="configs"):
-    """Select a configuration file from the directory"""
-    if not os.path.exists(config_dir):
-        return "config.json"
+    """Interactive config selection"""
+    ensure_configs_dir(config_dir)
 
     json_files = [f for f in os.listdir(config_dir) if f.endswith('.json')]
-    if not json_files: return "config.json"
-    if len(json_files) == 1: return os.path.join(config_dir, json_files[0])
+    if len(json_files) == 1:
+        return os.path.join(config_dir, json_files[0])
     
-    print(f"\n📂 Found multiple configuration files:")
+    print(f"\n📂 Available configurations in '{config_dir}':")
     for idx, filename in enumerate(json_files, 1):
         print(f"  {idx}. {filename}")
     
     while True:
         try:
-            choice = input(f"\nPlease enter the number to select a configuration file (1-{len(json_files)}): ")
+            choice = input(f"\nSelect a configuration file (1-{len(json_files)}): ")
             choice_idx = int(choice) - 1
             if 0 <= choice_idx < len(json_files):
                 return os.path.join(config_dir, json_files[choice_idx])
         except (ValueError, KeyboardInterrupt):
-            sys.exit("\nExecution cancelled.")
-        print("❌ Invalid input, please try again.")
+            sys.exit("\nExecution terminated by user.")
+        print("❌ Invalid input. Please try again.")
 
 def run_validator(config_path, output_html=False):
     try:
         with open(config_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
     except Exception as e:
-        print(f"❌ Error: Unable to read configuration file ({e})")
+        print(f"❌ Error: Failed to read config file ({e})")
         return
 
     project_name = data.get("project_name", os.path.basename(config_path))
@@ -159,21 +184,20 @@ def run_validator(config_path, output_html=False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="📱 Android APK Version Validator - Validate Android device APK versions against configuration files.",
+        description="📱 Android APK Version Validator - Check device APK versions against config.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="Usage example:\n  python apk_version_validator.py\n  python apk_version_validator.py -c configs/my_proj.json --html"
+        epilog="Examples:\n  python apk_version_validator.py\n  python apk_version_validator.py -c configs/prod.json --html"
     )
-    # Add version number query parameter
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s v{__version__}")
-    parser.add_argument("-c", "--config", help="Specify JSON configuration file path. If not specified, will search in configs/ directory or current directory.")
-    parser.add_argument("--html", action="store_true", help="Generate HTML report file (stored in reports/ folder).")
+    parser.add_argument("-c", "--config", help="Path to JSON config. Defaults to searching in configs/ folder.")
+    parser.add_argument("--html", action="store_true", help="Generate an HTML report in reports/ folder.")
     
     args = parser.parse_args()
 
-    # Check ADB
-    adb_output = subprocess.run("adb devices", shell=True, capture_output=True).stdout.decode()
-    if adb_output.count('\t') < 1:
-        print("❌ Error: No Android device detected. Please ensure ADB connection and USB debugging is enabled.")
+    # ADB Connection Check
+    adb_check = subprocess.run("adb devices", shell=True, capture_output=True).stdout.decode()
+    if adb_check.count('\t') < 1:
+        print("❌ Error: No Android device detected via ADB. Please check connection and USB debugging.")
         sys.exit()
 
     final_config = args.config if args.config else select_config_file("configs")
