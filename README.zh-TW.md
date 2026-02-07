@@ -1,5 +1,7 @@
 # 📱 Android APK Version Validator
 
+[繁體中文] | [English](README.md)
+
 這是一個基於 Python 與 ADB (Android Debug Bridge) 的自動化工具，旨在幫助開發者與測試人員快速核對 Android 設備上已安裝應用的版本是否符合預期。
 
 ---
