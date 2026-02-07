@@ -1,5 +1,7 @@
 # 📱 Android APK Version Validator
 
+[English] | [繁體中文](README.zh-TW.md)
+
 A Python-based utility to verify installed APK versions on Android devices against expected versions using ADB.
 
 ---
