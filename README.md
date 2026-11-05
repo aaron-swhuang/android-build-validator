@@ -8,6 +8,7 @@ A Python-based utility to verify Android device builds (installed APK versions, 
 
 ## 🌟 Key Features
 
+- **System Property Inspection**: Automatically retrieves key build properties (`ro.build.date`, `ro.build.fingerprint`) via `adb shell getprop`.
 - **Automated Version Check**: Retrieves `versionName` directly from the device via ADB.
 - **Project Management**: Supports multiple JSON configurations within the `configs/` directory.
 - **Interactive CLI**: Automatically detects config files and provides a selection menu.
