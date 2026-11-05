@@ -8,6 +8,20 @@ from datetime import datetime
 
 __version__ = "1.0.0"
 
+DEFAULT_PROPERTIES = [
+    "ro.build.date",
+    "ro.build.fingerprint"
+]
+
+def get_system_property(prop_name):
+    """Get system property value from ADB"""
+    try:
+        cmd = f"adb shell getprop {prop_name}"
+        output = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL).decode('utf-8').strip()
+        return output if output else "N/A"
+    except Exception:
+        return "N/A"
+
 def get_actual_version(package_id):
     """Get actual version from ADB"""
     try:
@@ -47,7 +61,7 @@ def ensure_configs_dir(config_dir="configs"):
             json.dump(example_data, f, indent=4)
         print(f"💡 Generated example config: {example_path}")
 
-def generate_html_report(project_name, results, report_folder="reports"):
+def generate_html_report(project_name, prop_results, results, report_folder="reports"):
     """Generate a stylized HTML report"""
     if not os.path.exists(report_folder):
         os.makedirs(report_folder)
@@ -59,6 +73,15 @@ def generate_html_report(project_name, results, report_folder="reports"):
     safe_project_name = re.sub(r'[\\/*?:"<>|\s]+', '_', project_name).strip('_') or "project"
     output_path = os.path.join(report_folder, f"report_{safe_project_name}_{file_timestamp}.html")
     
+    prop_rows = ""
+    for p in prop_results:
+        prop_rows += f"""
+        <tr>
+            <td><code>{p['property']}</code></td>
+            <td><code>{p['value']}</code></td>
+        </tr>
+        """
+
     rows = ""
     for r in results:
         status_color = "#28a745" if r['status'] == "✅ Pass" else "#dc3545" if "Not" in r['status'] else "#ffc107"
@@ -81,12 +104,13 @@ def generate_html_report(project_name, results, report_folder="reports"):
         <style>
             body {{ font-family: 'Segoe UI', sans-serif; margin: 40px; background: #f4f7f6; color: #333; }}
             .container {{ max-width: 1000px; margin: auto; }}
-            table {{ width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }}
+            table {{ width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 25px; }}
             th, td {{ padding: 15px; text-align: left; border-bottom: 1px solid #eee; }}
             th {{ background-color: #007bff; color: white; text-transform: uppercase; font-size: 14px; }}
             tr:hover {{ background-color: #f9f9f9; }}
             .header {{ background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #007bff; }}
             h1 {{ margin-top: 0; color: #007bff; }}
+            h2 {{ color: #333; font-size: 18px; margin-bottom: 10px; }}
         </style>
     </head>
     <body>
@@ -96,6 +120,19 @@ def generate_html_report(project_name, results, report_folder="reports"):
                 <p><strong>Project:</strong> {project_name}</p>
                 <p><strong>Generated At:</strong> {timestamp}</p>
             </div>
+            <h2>🔧 System Properties</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 35%;">Property</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {prop_rows}
+                </tbody>
+            </table>
+            <h2>📦 APK Versions</h2>
             <table>
                 <thead>
                     <tr>
@@ -152,10 +189,27 @@ def run_validator(config_path, output_html=False):
         return
 
     project_name = data.get("project_name", os.path.basename(config_path))
+    props = data.get("properties_to_check", DEFAULT_PROPERTIES)
     apps = data.get("apps_to_check", [])
+    prop_results = []
     results = []
     
     print(f"\n🚀 Project: {project_name} (Script v{__version__})")
+
+    print("\n🔧 System Properties")
+    prop_header = f"{'Property':<30} | {'Value'}"
+    print("-" * 115)
+    print(prop_header)
+    print("-" * 115)
+    for prop in props:
+        val = get_system_property(prop)
+        print(f"{prop:<30} | {val}")
+        prop_results.append({
+            'property': prop,
+            'value': val
+        })
+
+    print("\n📦 APK Versions")
     header = f"{'App Name':<20} | {'Package Name':<30} | {'Expected':<20} | {'Actual':<20} | {'Status':<12}"
     print("-" * 115)
     print(header)
@@ -182,7 +236,7 @@ def run_validator(config_path, output_html=False):
         })
     
     if output_html:
-        generate_html_report(project_name, results)
+        generate_html_report(project_name, prop_results, results)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

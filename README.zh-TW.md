@@ -8,6 +8,7 @@
 
 ## 🌟 主要功能
 
+- **系統建置屬性抓取**：透過 `adb shell getprop` 自動抓取並列出設備的 `ro.build.date` 與 `ro.build.fingerprint`。
 - **自動化版本抓取**：透過 ADB 指令精準獲取應用程式的 `versionName`。
 - **多專案管理**：支援從 `configs/` 資料夾自動讀取多組 JSON 設定檔。
 - **智慧選單**：若存在多個設定檔，提供互動式選單方便切換。
