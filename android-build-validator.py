@@ -6,7 +6,7 @@ import os
 import re
 from datetime import datetime
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 DEFAULT_PROPERTIES = [
     "ro.build.date",
