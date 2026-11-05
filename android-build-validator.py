@@ -75,7 +75,7 @@ def generate_html_report(project_name, results, report_folder="reports"):
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>APK Validation Report - {project_name}</title>
+        <title>Android Build Validation Report - {project_name}</title>
         <style>
             body {{ font-family: 'Segoe UI', sans-serif; margin: 40px; background: #f4f7f6; color: #333; }}
             .container {{ max-width: 1000px; margin: auto; }}
@@ -90,7 +90,7 @@ def generate_html_report(project_name, results, report_folder="reports"):
     <body>
         <div class="container">
             <div class="header">
-                <h1>📱 APK Version Validation Report</h1>
+                <h1>📱 Android Build Validation Report</h1>
                 <p><strong>Project:</strong> {project_name}</p>
                 <p><strong>Generated At:</strong> {timestamp}</p>
             </div>
@@ -109,7 +109,7 @@ def generate_html_report(project_name, results, report_folder="reports"):
                 </tbody>
             </table>
             <div style="margin-top:20px; text-align:center; font-size:12px; color:#999;">
-                Powered by APK Version Validator v{__version__}
+                Powered by Android Build Validator v{__version__}
             </div>
         </div>
     </body>
@@ -184,9 +184,9 @@ def run_validator(config_path, output_html=False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="📱 Android APK Version Validator - Check device APK versions against config.",
+        description="📱 Android Build Validator - Check device build & APK versions against config.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="Examples:\n  python apk_version_validator.py\n  python apk_version_validator.py -c configs/prod.json --html"
+        epilog="Examples:\n  python android-build-validator.py\n  python android-build-validator.py -c configs/prod.json --html"
     )
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s v{__version__}")
     parser.add_argument("-c", "--config", help="Path to JSON config. Defaults to searching in configs/ folder.")
