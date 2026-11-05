@@ -1,8 +1,8 @@
-# 📱 Android APK Version Validator
+# 📱 Android Build Validator
 
 [English] | [繁體中文](README.zh-TW.md)
 
-A Python-based utility to verify installed APK versions on Android devices against expected versions using ADB.
+A Python-based utility to verify Android device builds (installed APK versions, etc.) against expected configurations using ADB.
 
 ---
 
@@ -28,11 +28,11 @@ A Python-based utility to verify installed APK versions on Android devices again
 
 ```text
 .
-├── apk_version_validator.py   # Main Script
-├── README.md                 # Documentation
-├── configs/                  # Directory for JSON configurations
-│   └── example_config.json   # Generated on first run
-└── reports/                  # Directory for generated HTML reports
+├── android-build-validator.py # Main Script
+├── README.md                  # Documentation
+├── configs/                   # Directory for JSON configurations
+│   └── example_config.json    # Generated on first run
+└── reports/                   # Directory for generated HTML reports
 
 ```
 
@@ -63,8 +63,8 @@ Ensure your `.json` files follow this structure:
 ### 1. View Help and Version
 
 ```bash
-python apk_version_validator.py --help
-python apk_version_validator.py --version
+python android-build-validator.py --help
+python android-build-validator.py --version
 
 ```
 
@@ -73,21 +73,21 @@ python apk_version_validator.py --version
 Searches for files in `configs/` and lets you choose:
 
 ```bash
-python apk_version_validator.py
+python android-build-validator.py
 
 ```
 
 ### 3. Generate HTML Report
 
 ```bash
-python apk_version_validator.py --html
+python android-build-validator.py --html
 
 ```
 
 ### 4. Specify Custom Config Path
 
 ```bash
-python apk_version_validator.py -c ./my_custom_setup.json --html
+python android-build-validator.py -c ./my_custom_setup.json --html
 
 ```
 

@@ -1,8 +1,8 @@
-# 📱 Android APK Version Validator
+# 📱 Android Build Validator
 
 [繁體中文] | [English](README.md)
 
-這是一個基於 Python 與 ADB (Android Debug Bridge) 的自動化工具，旨在幫助開發者與測試人員快速核對 Android 設備上已安裝應用的版本是否符合預期。
+這是一個基於 Python 與 ADB (Android Debug Bridge) 的自動化工具，旨在幫助開發者與測試人員快速核對 Android 設備上的系統建置與已安裝應用版本是否符合預期。
 
 ---
 
@@ -28,12 +28,12 @@
 
 ```text
 .
-├── apk_version_validator.py   # 主程式
-├── README.md                 # 本說明文件
-├── configs/                  # [建議] 存放各專案的 JSON 設定檔
+├── android-build-validator.py # 主程式
+├── README.md                  # 本說明文件
+├── configs/                   # [建議] 存放各專案的 JSON 設定檔
 │   ├── project_A.json
 │   └── project_B.json
-└── reports/                  # [自動生成] 存放產出的 HTML 報表
+└── reports/                   # [自動生成] 存放產出的 HTML 報表
 
 ```
 
@@ -76,8 +76,8 @@
 查看所有可用的參數選項：
 
 ```bash
-python apk_version_validator.py --help
-python apk_version_validator.py --version
+python android-build-validator.py --help
+python android-build-validator.py --version
 
 ```
 
@@ -86,7 +86,7 @@ python apk_version_validator.py --version
 程式會檢查 `configs/` 資料夾。若有多個檔案，請輸入編號選擇：
 
 ```bash
-python apk_version_validator.py
+python android-build-validator.py
 
 ```
 
@@ -95,14 +95,14 @@ python apk_version_validator.py
 執行完畢後，報表將自動儲存於 `./reports/` 資料夾中：
 
 ```bash
-python apk_version_validator.py --html
+python android-build-validator.py --html
 
 ```
 
 ### 4. 指定特定設定檔與路徑
 
 ```bash
-python apk_version_validator.py -c ./custom_folder/my_config.json --html
+python android-build-validator.py -c ./custom_folder/my_config.json --html
 
 ```
 
