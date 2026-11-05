@@ -3,6 +3,7 @@ import subprocess
 import sys
 import argparse
 import os
+import re
 from datetime import datetime
 
 __version__ = "1.0.0"
@@ -55,7 +56,8 @@ def generate_html_report(project_name, results, report_folder="reports"):
     now = datetime.now()
     timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
     file_timestamp = now.strftime("%Y%m%d_%H%M%S")
-    output_path = os.path.join(report_folder, f"report_{file_timestamp}.html")
+    safe_project_name = re.sub(r'[\\/*?:"<>|\s]+', '_', project_name).strip('_') or "project"
+    output_path = os.path.join(report_folder, f"report_{safe_project_name}_{file_timestamp}.html")
     
     rows = ""
     for r in results:
