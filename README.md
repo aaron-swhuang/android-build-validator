@@ -41,7 +41,7 @@ A Python-based utility to verify Android device builds (installed APK versions, 
 
 ## ⚙️ Configuration Format (JSON)
 
-Ensure your `.json` files follow this structure:
+Ensure your `.json` files follow this structure (set `"version"` to `null`, `""`, or `"N/A"` if an app is expected **not** to be installed):
 
 ```json
 {
@@ -51,6 +51,11 @@ Ensure your `.json` files follow this structure:
       "name": "YouTube",
       "package_name": "com.google.android.youtube",
       "version": "19.01.33"
+    },
+    {
+      "name": "Legacy Test App",
+      "package_name": "com.example.legacyapp",
+      "version": null
     }
   ]
 }
@@ -98,9 +103,10 @@ python android-build-validator.py -c ./my_custom_setup.json --html
 
 | Status | Meaning |
 | --- | --- |
-| **✅ Pass** | Installed version matches the config exactly. |
+| **✅ Pass** | Installed version matches the config exactly (or app is expected not installed and is absent). |
 | **⚠️ Mismatch** | App is installed but version differs from config. |
-| **❌ Not Installed** | Package name could not be found on the device. |
+| **❌ Not Installed** | App is expected to be installed, but package name could not be found on the device. |
+| **❌ Unexpected Installed** | App is expected **not** to be installed, but was found on the device. |
 
 ---
 

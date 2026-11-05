@@ -42,7 +42,7 @@
 
 ## ⚙️ 設定檔範例 (JSON)
 
-請確保您的 `.json` 檔案放置於 `configs/` 目錄下（或自定義路徑），格式如下：
+請確保您的 `.json` 檔案放置於 `configs/` 目錄下（或自定義路徑）。若某個 App **預期不應安裝**，可將 `"version"` 設為 `null`、`""` 或 `"N/A"`，格式如下：
 
 ```json
 {
@@ -59,9 +59,9 @@
       "version": "14.1.1"
     },
     {
-      "name": "測試用 App",
+      "name": "測試用 App (預期未安裝)",
       "package_name": "com.example.testapp",
-      "version": "1.0.5"
+      "version": null
     }
   ]
 }
@@ -113,9 +113,10 @@ python android-build-validator.py -c ./custom_folder/my_config.json --html
 
 | 狀態 (Status) | 顏色 (HTML) | 說明 |
 | --- | --- | --- |
-| **✅ Pass** | 綠色 | 安裝版本與預期設定完全符合。 |
-| **⚠️ Mismatch** | 黃色 | 設備已安裝該應用，但版本號不符。 |
-| **❌ Not Installed** | 紅色 | 在設備中找不到指定的 Package Name。 |
+| **✅ Pass** | 綠色 | 安裝版本與預期設定完全符合（或預期未安裝且實際也未安裝）。 |
+| **⚠️ Mismatch** | 黃色 | 設備已安裝該應用，但版本號與預期不符。 |
+| **❌ Not Installed** | 紅色 | 預期應安裝該應用，但在設備中找不到指定的 Package Name。 |
+| **❌ Unexpected Installed** | 紅色 | 預期不應安裝該應用，但設備中卻偵測到已安裝。 |
 
 ---
 

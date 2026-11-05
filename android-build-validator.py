@@ -33,6 +33,12 @@ def get_actual_version(package_id):
         return None
     return None
 
+def is_expected_not_installed(version_val):
+    """Check if the configured version indicates the app should not be installed"""
+    if version_val is None:
+        return True
+    return str(version_val).strip().lower() in ("", "n/a", "not installed", "not_installed", "none")
+
 def ensure_configs_dir(config_dir="configs"):
     """Ensure configs directory exists, generate example if empty"""
     if not os.path.exists(config_dir):
@@ -84,7 +90,7 @@ def generate_html_report(project_name, prop_results, results, report_folder="rep
 
     rows = ""
     for r in results:
-        status_color = "#28a745" if r['status'] == "✅ Pass" else "#dc3545" if "Not" in r['status'] else "#ffc107"
+        status_color = "#28a745" if "✅" in r['status'] else "#dc3545" if "❌" in r['status'] else "#ffc107"
         rows += f"""
         <tr>
             <td>{r['name']}</td>
@@ -218,16 +224,25 @@ def run_validator(config_path, output_html=False):
     for app in apps:
         name = app.get("name", "Unknown")
         pkg_id = app.get("package_name")
-        expected_v = app.get("version")
+        raw_expected = app.get("version")
+        expect_not_installed = is_expected_not_installed(raw_expected)
+        expected_v = "Not Installed" if expect_not_installed else str(raw_expected).strip()
         actual_v = get_actual_version(pkg_id)
         
-        if actual_v is None:
-            status = "❌ Not Installed"
-            actual_v = "N/A"
-        elif actual_v == expected_v:
-            status = "✅ Pass"
+        if expect_not_installed:
+            if actual_v is None:
+                status = "✅ Pass"
+                actual_v = "Not Installed"
+            else:
+                status = "❌ Unexpected Installed"
         else:
-            status = "⚠️ Mismatch"
+            if actual_v is None:
+                status = "❌ Not Installed"
+                actual_v = "Not Installed"
+            elif actual_v == expected_v:
+                status = "✅ Pass"
+            else:
+                status = "⚠️ Mismatch"
             
         print(f"{name:<20} | {pkg_id:<30} | {expected_v:<20} | {actual_v:<20} | {status:<12}")
         results.append({
