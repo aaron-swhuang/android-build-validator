@@ -50,6 +50,9 @@ def ensure_configs_dir(config_dir="configs"):
         example_path = os.path.join(config_dir, "example_config.json")
         example_data = {
             "project_name": "Example Project",
+            "custom_info": {
+                "Build Version": "ro.build.version.incremental",
+            },
             "apps_to_check": [
                 {
                     "name": "YouTube",
@@ -67,7 +70,7 @@ def ensure_configs_dir(config_dir="configs"):
             json.dump(example_data, f, indent=4)
         print(f"💡 Generated example config: {example_path}")
 
-def generate_html_report(project_name, prop_results, results, report_folder="reports"):
+def generate_html_report(project_name, custom_results, prop_results, results, report_folder="reports"):
     """Generate a stylized HTML report"""
     if not os.path.exists(report_folder):
         os.makedirs(report_folder)
@@ -79,6 +82,31 @@ def generate_html_report(project_name, prop_results, results, report_folder="rep
     safe_project_name = re.sub(r'[\\/*?:"<>|\s]+', '_', project_name).strip('_') or "project"
     output_path = os.path.join(report_folder, f"report_{safe_project_name}_{file_timestamp}.html")
     
+    custom_section = ""
+    if custom_results:
+        custom_rows = ""
+        for c in custom_results:
+            custom_rows += f"""
+            <tr>
+                <td><strong>{c['field']}</strong></td>
+                <td><code>{c['value']}</code></td>
+            </tr>
+            """
+        custom_section = f"""
+            <h2>📋 Custom Info</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 35%;">Field</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {custom_rows}
+                </tbody>
+            </table>
+        """
+
     prop_rows = ""
     for p in prop_results:
         prop_rows += f"""
@@ -126,6 +154,7 @@ def generate_html_report(project_name, prop_results, results, report_folder="rep
                 <p><strong>Project:</strong> {project_name}</p>
                 <p><strong>Generated At:</strong> {timestamp}</p>
             </div>
+            {custom_section}
             <h2>🔧 System Properties</h2>
             <table>
                 <thead>
@@ -195,12 +224,33 @@ def run_validator(config_path, output_html=False):
         return
 
     project_name = data.get("project_name", os.path.basename(config_path))
+    custom_info = data.get("custom_info", {})
     props = data.get("properties_to_check", DEFAULT_PROPERTIES)
     apps = data.get("apps_to_check", [])
+    custom_results = []
     prop_results = []
     results = []
     
     print(f"\n🚀 Project: {project_name} (Script v{__version__})")
+
+    if custom_info:
+        print("\n📋 Custom Info")
+        custom_header = f"{'Field':<30} | {'Value'}"
+        print("-" * 115)
+        print(custom_header)
+        print("-" * 115)
+        items = custom_info.items() if isinstance(custom_info, dict) else [
+            (item.get("name", item.get("field", "Unknown")), item.get("property", ""))
+            for item in custom_info if isinstance(item, dict)
+        ]
+        for field_name, prop_name in items:
+            val = get_system_property(prop_name) if prop_name else "N/A"
+            print(f"{field_name:<30} | {val}")
+            custom_results.append({
+                'field': field_name,
+                'property': prop_name,
+                'value': val
+            })
 
     print("\n🔧 System Properties")
     prop_header = f"{'Property':<30} | {'Value'}"
@@ -251,7 +301,7 @@ def run_validator(config_path, output_html=False):
         })
     
     if output_html:
-        generate_html_report(project_name, prop_results, results)
+        generate_html_report(project_name, custom_results, prop_results, results)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

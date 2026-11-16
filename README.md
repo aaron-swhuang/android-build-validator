@@ -46,6 +46,9 @@ Ensure your `.json` files follow this structure (set `"version"` to `null`, `""`
 ```json
 {
   "project_name": "My QA Project",
+  "custom_info": {
+    "Build Version": "ro.build.version.incremental"
+  },
   "apps_to_check": [
     {
       "name": "YouTube",

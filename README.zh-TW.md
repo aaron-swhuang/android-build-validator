@@ -42,11 +42,14 @@
 
 ## ⚙️ 設定檔範例 (JSON)
 
-請確保您的 `.json` 檔案放置於 `configs/` 目錄下（或自定義路徑）。若某個 App **預期不應安裝**，可將 `"version"` 設為 `null`、`""` 或 `"N/A"`，格式如下：
+請確保您的 `.json` 檔案放置於 `configs/` 目錄下（或自定義路徑）。可透過 `"custom_info"` 自訂欄位名稱並對應系統 property，將在 System Properties 表格之前獨立顯示。若某個 App **預期不應安裝**，可將 `"version"` 設為 `null`、`""` 或 `"N/A"`，格式如下：
 
 ```json
 {
   "project_name": "核心系統測試專案",
+  "custom_info": {
+    "Build Version": "ro.build.version.incremental"
+  },
   "apps_to_check": [
     {
       "name": "YouTube",
