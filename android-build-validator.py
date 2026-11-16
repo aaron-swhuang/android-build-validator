@@ -6,7 +6,7 @@ import os
 import re
 from datetime import datetime
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 DEFAULT_PROPERTIES = [
     "ro.build.date",
@@ -51,7 +51,8 @@ def ensure_configs_dir(config_dir="configs"):
         example_data = {
             "project_name": "Example Project",
             "custom_info": {
-                "Build Version": "ro.build.version.incremental",
+                "Build Version": "ro.vendor.fxivi.version",
+                "MCU Version": "vendor.fx.MCUVer"
             },
             "properties_to_check": [
                 "ro.product.model",
