@@ -53,6 +53,10 @@ def ensure_configs_dir(config_dir="configs"):
             "custom_info": {
                 "Build Version": "ro.build.version.incremental",
             },
+            "properties_to_check": [
+                "ro.product.model",
+                "ro.build.version.release"
+            ],
             "apps_to_check": [
                 {
                     "name": "YouTube",
@@ -225,7 +229,8 @@ def run_validator(config_path, output_html=False):
 
     project_name = data.get("project_name", os.path.basename(config_path))
     custom_info = data.get("custom_info", {})
-    props = data.get("properties_to_check", DEFAULT_PROPERTIES)
+    extra_props = data.get("properties_to_check", [])
+    props = list(dict.fromkeys(DEFAULT_PROPERTIES + (extra_props if isinstance(extra_props, list) else [])))
     apps = data.get("apps_to_check", [])
     custom_results = []
     prop_results = []

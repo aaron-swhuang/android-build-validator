@@ -41,7 +41,7 @@ A Python-based utility to verify Android device builds (installed APK versions, 
 
 ## ⚙️ Configuration Format (JSON)
 
-Ensure your `.json` files follow this structure (set `"version"` to `null`, `""`, or `"N/A"` if an app is expected **not** to be installed):
+Ensure your `.json` files follow this structure (`"properties_to_check"` will be appended to the default `ro.build.date` and `ro.build.fingerprint`; set `"version"` to `null`, `""`, or `"N/A"` if an app is expected **not** to be installed):
 
 ```json
 {
@@ -49,6 +49,10 @@ Ensure your `.json` files follow this structure (set `"version"` to `null`, `""`
   "custom_info": {
     "Build Version": "ro.build.version.incremental"
   },
+  "properties_to_check": [
+    "ro.product.model",
+    "ro.build.version.release"
+  ],
   "apps_to_check": [
     {
       "name": "YouTube",
